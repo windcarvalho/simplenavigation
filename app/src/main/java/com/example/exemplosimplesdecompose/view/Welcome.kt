@@ -40,7 +40,7 @@ fun Welcome(navController: NavHostController) { //Recebe o elemento que permite 
             contentDescription = "Imagem de boas-vindas",
             modifier = Modifier
                 .size(128.dp)
-              //  .clickable { navController.navigate("input") }
+                .clickable { navController.navigate("mainalcgas") }
         )
     }
 }

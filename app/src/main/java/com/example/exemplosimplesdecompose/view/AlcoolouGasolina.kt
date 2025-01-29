@@ -1,5 +1,7 @@
 package com.example.exemplosimplesdecompose.view
 
+import android.content.Context
+import android.content.SharedPreferences
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
@@ -35,11 +38,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 
 @Composable
-fun AlcoolGasolinaPreco(navController: NavHostController) {
+fun AlcoolGasolinaPreco(navController: NavHostController,check:Boolean) {
+    val context = LocalContext.current
     var alcool by remember { mutableStateOf("") }
     var gasolina by remember { mutableStateOf("") }
     var nomeDoPosto by remember { mutableStateOf("") }
-    var checkedState by remember { mutableStateOf(true) }
+    var checkedState by remember { mutableStateOf(check) }
 
     // A surface container using the 'background' color from the theme
     Surface(
@@ -89,9 +93,11 @@ fun AlcoolGasolinaPreco(navController: NavHostController) {
                     modifier = Modifier.padding(top = 16.dp)
                 )
                 Switch(
-                    modifier = Modifier.semantics { contentDescription = "Demo with icon" },
+                    modifier = Modifier.semantics { contentDescription = "Escolha o percentual" },
                     checked = checkedState,
-                    onCheckedChange = { checkedState = it },
+                    onCheckedChange = { checkedState = it
+                         // saveConfig(context,checkedState)
+                                      },
                     thumbContent = {
                         if (checkedState) {
                             // Icon isn't focusable, no need for content description
@@ -133,4 +139,11 @@ fun AlcoolGasolinaPreco(navController: NavHostController) {
             }
         }
     }
+}
+fun saveConfig(context: Context, switch_state:Boolean){
+    val sharedFileName="config_Alc_ou_Gas"
+    var sp: SharedPreferences = context.getSharedPreferences(sharedFileName, Context.MODE_PRIVATE)
+    var editor = sp.edit()
+    editor.putBoolean("is_75_checked",switch_state)
+    editor.apply()
 }

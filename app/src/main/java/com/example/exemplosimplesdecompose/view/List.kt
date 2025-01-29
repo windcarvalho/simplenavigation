@@ -26,15 +26,17 @@ import com.example.exemplosimplesdecompose.data.Posto
 @Composable
 fun ListaDePostos(navController: NavHostController, nomeDoPosto: String) {
     val context= LocalContext.current
-    val postoSP = Posto("Posto SP", Coordenadas(41.40338, 2.17403))
+    val postoES = Posto("Posto na Espanha", Coordenadas(41.40338, 2.17403))
     val postoNY = Posto("Posto em NY", Coordenadas(40.7128, -74.0060))
     val postoN= Posto("$nomeDoPosto")
+
+
     val postos = listOf(
         "$nomeDoPosto",
         "Outro posto",
         "Mais um posto"
     )
-    val postosComp = listOf(postoN, postoSP, postoNY)
+    val postosComp = listOf(postoN, postoES, postoNY)
     Scaffold(
         topBar = {
             TopAppBar(
@@ -48,11 +50,18 @@ fun ListaDePostos(navController: NavHostController, nomeDoPosto: String) {
                 .padding(innerPadding),
             contentPadding = PaddingValues(16.dp)
         ) {
-            items(postos) { item ->
+            items(postosComp) { item ->
                 Card(
                     onClick = {
 
                         //Abrir Mapa
+                        // Cria o Intent para abrir o Google Maps
+                        val gmmIntentUri = Uri.parse("geo:${item.coordenadas.latitude},${item.coordenadas.longitude}")
+                        val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
+                            setPackage("com.google.android.apps.maps") // Garante que o Maps será usado
+                        }
+                        context.startActivity(mapIntent)
+
 
 
                     },
@@ -62,7 +71,7 @@ fun ListaDePostos(navController: NavHostController, nomeDoPosto: String) {
                 ) {
                     Box(Modifier.fillMaxSize()) {
                         Text(
-                            text = item,
+                            text = item.nome,
                             modifier = Modifier.padding(16.dp)
                         )
                     }

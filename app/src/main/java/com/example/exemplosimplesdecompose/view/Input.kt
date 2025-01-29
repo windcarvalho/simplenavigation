@@ -38,10 +38,9 @@ fun InputView(navController: NavHostController) { //Recebe o elemento que permit
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
+        val nomeDoPosto=text.text
         Button(
-            onClick = {
-                // Rota?
-            }
+            onClick = { navController.navigate("listaDePostos/$nomeDoPosto")}
         ) {
             Text("Ir para a próxima tela")
         }

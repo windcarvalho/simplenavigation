@@ -1,5 +1,7 @@
 package com.example.exemplosimplesdecompose
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,32 +27,34 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        var check= false
+        //check=loadConfig(this)
         setContent {
             ExemploSimplesDeComposeTheme {
                 val navController: NavHostController = rememberNavController()
                 NavHost(navController = navController, startDestination = "welcome") {
                     composable("welcome") { Welcome(navController) }
-                    composable("input") { InputView(navController) }
-                    composable("mainalcgas") { AlcoolGasolinaPreco(navController) }
+                   // composable("input") { InputView(navController) }
+                    composable("mainalcgas") { AlcoolGasolinaPreco(navController,check) }
+                    composable("listaDePostos/{posto}") { backStackEntry ->
+                        val posto = backStackEntry.arguments?.getString("posto") ?: ""
+                        ListaDePostos(navController, posto)
+                    }
 
                 }
             }
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ExemploSimplesDeComposeTheme {
-        Greeting("Android")
+    fun loadConfig(context: Context):Boolean{
+        val sharedFileName="config_Alc_ou_Gas"
+        var sp: SharedPreferences = context.getSharedPreferences(sharedFileName, Context.MODE_PRIVATE)
+        var is_75_checked=false
+        if(sp!=null) {
+            is_75_checked = sp.getBoolean("is_75_checked", false)
+        }
+        return is_75_checked
     }
 }
+
