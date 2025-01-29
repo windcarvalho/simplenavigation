@@ -2,6 +2,7 @@ package com.example.exemplosimplesdecompose.view
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,6 +37,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.exemplosimplesdecompose.data.Coordenadas
+import com.example.exemplosimplesdecompose.data.Posto
 
 @Composable
 fun AlcoolGasolinaPreco(navController: NavHostController,check:Boolean) {
@@ -80,7 +83,7 @@ fun AlcoolGasolinaPreco(navController: NavHostController,check:Boolean) {
                 onValueChange = { nomeDoPosto = it },
                 label = { Text("Nome do Posto (Opcional))") },
                 modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
             )
 
             Row(modifier = Modifier
@@ -131,8 +134,8 @@ fun AlcoolGasolinaPreco(navController: NavHostController,check:Boolean) {
                 .padding(16.dp),
                 horizontalArrangement = Arrangement.End) {
                 FloatingActionButton(
-                    onClick = { navController.navigate("ListaDePostos/$nomeDoPosto")},
-
+                    onClick = {
+                        navController.navigate("ListaDePostos/$nomeDoPosto")},
                     ) {
                     Icon(Icons.Filled.Add, "Inserir Posto")
                 }
@@ -147,3 +150,4 @@ fun saveConfig(context: Context, switch_state:Boolean){
     editor.putBoolean("is_75_checked",switch_state)
     editor.apply()
 }
+
