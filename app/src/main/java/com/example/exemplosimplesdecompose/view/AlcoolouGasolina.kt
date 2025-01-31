@@ -2,7 +2,6 @@ package com.example.exemplosimplesdecompose.view
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,8 +36,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.exemplosimplesdecompose.data.Coordenadas
-import com.example.exemplosimplesdecompose.data.Posto
 
 @Composable
 fun AlcoolGasolinaPreco(navController: NavHostController,check:Boolean) {
@@ -99,7 +96,7 @@ fun AlcoolGasolinaPreco(navController: NavHostController,check:Boolean) {
                     modifier = Modifier.semantics { contentDescription = "Escolha o percentual" },
                     checked = checkedState,
                     onCheckedChange = { checkedState = it
-                         // saveConfig(context,checkedState)
+                         saveConfig(context,checkedState)
                                       },
                     thumbContent = {
                         if (checkedState) {

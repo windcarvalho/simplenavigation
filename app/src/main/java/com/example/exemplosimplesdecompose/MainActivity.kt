@@ -6,21 +6,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.exemplosimplesdecompose.ui.theme.ExemploSimplesDeComposeTheme
 import com.example.exemplosimplesdecompose.view.AlcoolGasolinaPreco
-import com.example.exemplosimplesdecompose.view.InputView
-import com.example.exemplosimplesdecompose.view.ListaDePostos
+import com.example.exemplosimplesdecompose.view.ListofGasStations
 import com.example.exemplosimplesdecompose.view.Welcome
 
 class MainActivity : ComponentActivity() {
@@ -28,7 +20,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         var check= false
-        //check=loadConfig(this)
+        check=loadConfig(this)
         setContent {
             ExemploSimplesDeComposeTheme {
                 val navController: NavHostController = rememberNavController()
@@ -38,7 +30,7 @@ class MainActivity : ComponentActivity() {
                     composable("mainalcgas") { AlcoolGasolinaPreco(navController,check) }
                     composable("listaDePostos/{posto}") { backStackEntry ->
                         val posto = backStackEntry.arguments?.getString("posto") ?: ""
-                        ListaDePostos(navController, posto)
+                        ListofGasStations(navController, posto)
                     }
 
                 }

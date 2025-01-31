@@ -22,8 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.exemplosimplesdecompose.data.Coordenadas
-import com.example.exemplosimplesdecompose.data.Posto
+import com.example.exemplosimplesdecompose.data.Coordinates
+import com.example.exemplosimplesdecompose.data.GasStation
 import org.json.JSONObject
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -33,19 +33,22 @@ import java.nio.charset.StandardCharsets
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListaDePostos(navController: NavHostController, posto:String) {
+fun ListofGasStations(navController: NavHostController, posto:String) {
     val context= LocalContext.current
-    val postoES = Posto("Posto na Espanha", Coordenadas(41.40338, 2.17403))
-    val postoNY = Posto("Posto em NY", Coordenadas(40.7128, -74.0060))
-    val postoN= Posto(posto,Coordenadas(41.40338, 2.17403))
+   // val gasES = GasStation("Posto na Espanha", Coordenadas(41.40338, 2.17403))
+    val gasNY = GasStation("Posto em NY", Coordinates(40.7128, -74.0060))
+    val gasN= GasStation(posto,Coordinates(41.40338, 2.17403))
 
-    //val postoES = getGasStation(context)
-    //saveGasStation(context,postoN)
+   // val gasES = getGasStation(context)
+   // saveGasStation(context,gasN)
 
-   // val postoES = getGasStationSerializable(context)
-   // saveGasStationSerializable(context,postoN)
+   // val gasES = getGasStationSerializable(context)
+    //saveGasStationSerializable(context,gasN)
 
-    val postosComp = listOf(postoN, postoES, postoNY)
+    val gasES = getGasStationJSON(context)
+    saveGasStationJSON(context,gasN)
+
+    val postosComp = listOf(gasN, gasES, gasNY)
     Scaffold(
         topBar = {
             TopAppBar(
@@ -65,7 +68,7 @@ fun ListaDePostos(navController: NavHostController, posto:String) {
 
                         //Abrir Mapa
                         // Cria o Intent para abrir o Google Maps
-                        val gmmIntentUri = Uri.parse("geo:${item.coordenadas.latitude},${item.coordenadas.longitude}")
+                        val gmmIntentUri = Uri.parse("geo:${item.coord.lat},${item.coord.lgt}")
                         val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
                             setPackage("com.google.android.apps.maps") // Garante que o Maps será usado
                         }
@@ -80,7 +83,7 @@ fun ListaDePostos(navController: NavHostController, posto:String) {
                 ) {
                     Box(Modifier.fillMaxSize()) {
                         Text(
-                            text = item.nome,
+                            text = item.name,
                             modifier = Modifier.padding(16.dp)
                         )
                     }
@@ -89,109 +92,118 @@ fun ListaDePostos(navController: NavHostController, posto:String) {
         }
     }
 }
-fun saveGasStation(context: Context, posto: Posto){
+fun saveGasStation(context: Context, gasStation: GasStation){
     Log.v("PDM25","Salvando o posto")
     val sharedFileName="lastGasStation"
     var sp: SharedPreferences = context.getSharedPreferences(sharedFileName, Context.MODE_PRIVATE)
     var editor = sp.edit()
-    editor.putString("nomeDoPosto",posto.nome)
-    editor.putString("latitude",posto.coordenadas.latitude.toString())
-    editor.putString("latitude",posto.coordenadas.longitude.toString())
+    editor.putString("nomeDoPosto",gasStation.name)
+    editor.putString("latitude",gasStation.coord.lat.toString())
+    editor.putString("latitude",gasStation.coord.lgt.toString())
     editor.apply()
 }
-fun getGasStation(context: Context):Posto{
+fun getGasStation(context: Context):GasStation{
     val sharedFileName="lastGasStation"
     var sp: SharedPreferences = context.getSharedPreferences(sharedFileName, Context.MODE_PRIVATE)
-    var posto = Posto("Posto na Espanha", Coordenadas(41.40338, 2.17403))
+    var gasStation = GasStation("Posto na Espanha", Coordinates(41.40338, 2.17403))
     if(sp!=null) {
-        posto.nome = sp.getString("nomeDoPosto", "").toString()
+        gasStation.name = sp.getString("nomeDoPosto", "").toString()
     }
-    return posto
+    return gasStation
 }
-fun saveGasStationSerializable(context: Context, posto: Posto){
+fun saveGasStationSerializable(context: Context, gasStation: GasStation){
     Log.v("PDM25","Salvando o posto serializado")
     var dt= ByteArrayOutputStream()
     var oos = ObjectOutputStream(dt);
-    oos.writeObject(posto);
+    oos.writeObject(gasStation);
     val sharedFileName="lastGasStationSer"
     var sp: SharedPreferences = context.getSharedPreferences(sharedFileName, Context.MODE_PRIVATE)
     var editor = sp.edit()
-    var aux= dt.toString(StandardCharsets.ISO_8859_1.name())
+    var aux= dt.toString(StandardCharsets.UTF_16.name())
     Log.v("PDM25",aux)
     editor.putString("posto1",aux)
     editor.apply()
 }
-fun getGasStationSerializable(context: Context):Posto{
+fun getGasStationSerializable(context: Context):GasStation{
     val sharedFileName="lastGasStationSer"
     var sp: SharedPreferences = context.getSharedPreferences(sharedFileName, Context.MODE_PRIVATE)
-    var posto = Posto("PostoS", Coordenadas(41.40338, 2.17403))
+    var gasStation = GasStation("PostoS", Coordinates(41.40338, 2.17403))
     var aux: String
     if(sp!=null) {
         //Lendo bytes serializados
         aux = sp.getString("posto1", "").toString()
         Log.v("PDM25",aux)
 
-        //Convertendo em objeto
-        var bis: ByteArrayInputStream
-        bis = ByteArrayInputStream(aux.toByteArray(Charsets.ISO_8859_1))
-        var obi: ObjectInputStream
-        obi = ObjectInputStream(bis)
+        if(aux.length>=2) {
+            //Convertendo em objeto
+            var bis: ByteArrayInputStream
+            bis = ByteArrayInputStream(aux.toByteArray(Charsets.UTF_16))
+            var obi: ObjectInputStream
+            obi = ObjectInputStream(bis)
 
-        //lendo
-        posto=obi.readObject() as Posto
-
+            //lendo
+            gasStation = obi.readObject() as GasStation
+        }
     }
-    return posto
+    return gasStation
 }
 
-fun postoToJson(posto: Posto): JSONObject {
+fun gasStationToJson(gasStation: GasStation): JSONObject {
     return JSONObject().apply {
-        put("nome", posto.nome)
-        put("latitude", posto.coordenadas.latitude)
-        put("longitude", posto.coordenadas.longitude)
+        put("name", gasStation.name)
+        put("lat", gasStation.coord.lat)
+        put("lgt", gasStation.coord.lgt)
+    }
+}
+fun jsonToGasStation(json: JSONObject?): GasStation {
+    //Caso o json seja inválido existe um valor default (ternário a seguir)
+    val name = json?.optString("name", "") ?: ""
+    val lat = json?.optDouble("lat", 0.0) ?: 0.0
+    val lgt = json?.optDouble("lgt", 0.0) ?: 0.0
+    return GasStation(name, Coordinates(lat, lgt))
+}
+fun stringToJson_Safe(jsonString: String): JSONObject? {
+    return try {
+        JSONObject(jsonString)
+    } catch (e: Exception) {
+        null // Retorna null se a string não for um JSON válido
     }
 }
 
-fun saveGasStationJSON(context: Context, posto: Posto){
+fun saveGasStationJSON(context: Context, gasStation: GasStation){
     Log.v("PDM25","Salvando o posto em JSON")
     val sharedFileName="lastGasStationJSON"
     var sp: SharedPreferences = context.getSharedPreferences(sharedFileName, Context.MODE_PRIVATE)
     var editor = sp.edit()
-    val jsonObject = postoToJson(posto)
+    val jsonObject = gasStationToJson(gasStation)
     Log.v("PDM",": "+jsonObject);
-    editor.putString("postoJSON",jsonObject.toString())
+    editor.putString("gasJSON",jsonObject.toString())
     editor.apply()
 }
-fun getGasStationJSON(context: Context):Posto{
-    val sharedFileName="lastGasStationSer"
+fun getGasStationJSON(context: Context):GasStation{
+    val sharedFileName="lastGasStationJSON"
     var sp: SharedPreferences = context.getSharedPreferences(sharedFileName, Context.MODE_PRIVATE)
-    var posto = Posto("PostoS", Coordenadas(41.40338, 2.17403))
+    lateinit var gasStation:GasStation
     var aux: String
     if(sp!=null) {
         //Lendo bytes serializados
-        aux = sp.getString("posto1", "").toString()
+        aux = sp.getString("gasJSON", "").toString()
         Log.v("PDM25",aux)
-
-        //Convertendo em objeto
-        var bis: ByteArrayInputStream
-        bis = ByteArrayInputStream(aux.toByteArray(Charsets.ISO_8859_1))
-        var obi: ObjectInputStream
-        obi = ObjectInputStream(bis)
-
         //lendo
-        posto=obi.readObject() as Posto
+        gasStation= jsonToGasStation(stringToJson_Safe(aux))
 
     }
-    return posto
+    return gasStation
 }
 
-fun getListOfGasStation(context: Context):List<Posto>{
-    val posto1 = Posto("Posto na Espanha", Coordenadas(41.40338, 2.17403))
-    val posto2 = Posto("Posto em NY", Coordenadas(40.7128, -74.0060))
-    val posto3= Posto("Posto em Fortaleza",Coordenadas(41.40338, 2.17403))
+//Sugestão de métodos a serem usados para a versão final
+fun getListOfGasStation(context: Context):List<GasStation>{
+    val gasStation1 = GasStation("Posto na Espanha", Coordinates(41.40338, 2.17403))
+    val gasStation2 = GasStation("Posto em NY", Coordinates(40.7128, -74.0060))
+    val gasStation3= GasStation("Posto em Fortaleza",Coordinates(41.40338, 2.17403))
 
-    return listOf(posto1, posto2, posto3)
+    return listOf(gasStation1, gasStation2, gasStation3)
 }
-fun addGasStation(context: Context, posto: Posto){
+fun addGasStation(context: Context, gasStation: GasStation){
 
 }
